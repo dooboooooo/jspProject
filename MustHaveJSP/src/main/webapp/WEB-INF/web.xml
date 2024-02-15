@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <display-name>MustHaveJSP</display-name>
+  <welcome-file-list> <!-- 프로젝트 접속 시 홈페이지 파일 기본값 -->
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+  
+  <!-- 컨텍스트 초기화 매개변수 web.xml 추가 설정 -->
+  <context-param> <!-- 톰켓이 동작할 때 변수와 값을 제공한다. -->
+	  <param-name>INIT_PARAM</param-name> <!-- key -->
+	  <param-value>web.xml에 저장한 초기화 매개변수</param-value> <!-- value -->
+  </context-param>
+  
+<!--  
+  <error-page>
+  	<error-code>404</error-code> 404 예외 발생시 처리문
+  	<location>/02ImplicitObject/Exception.jsp</location> 404 예외 발생시 처리되는 파일
+  </error-page>
+  <error-page>
+  	<error-code>405</error-code> 405 예외 발생시 처리문
+  	<location>/02ImplicitObject/Exception.jsp</location> 405 예외 발생시 처리되는 파일
+  </error-page>
+  <error-page>
+  	<error-code>500</error-code> 500 예외 발생시 처리문
+  	<location>/02ImplicitObject/Exception.jsp</location> 500 예외 발생시 처리되는 파일
+  </error-page> -->  <!-- 톰캣이 예외처리를 담당하게 구현 -->
+  
+  <!-- JDBC에서 사용할 드라이버, id, pwd, url을 기록한다. application.getInitParameter로 꺼내서 쓴다-->
+  <context-param>
+	  <param-name>OracleDriver</param-name>
+	  <param-value>oracle.jdbc.OracleDriver</param-value>
+  </context-param>
+  <context-param>
+	  <param-name>OracleURL</param-name>
+	  <param-value>jdbc:oracle:thin:@192.168.0.217:1521:xe</param-value>
+  </context-param>
+  <context-param>
+	  <param-name>OracleId</param-name>
+	  <param-value>musthave</param-value>
+  </context-param>
+  <context-param>
+	  <param-name>OraclePwd</param-name>
+	  <param-value>1234</param-value>
+  </context-param>
+  
+  <!-- 프로젝트별 세션 시간 설정 20분 -->
+  <session-config>
+     <session-timeout>20</session-timeout>
+  </session-config>
+  
+  <!-- post 방식의 한글처리를 통합(한글깨짐) -->
+   <filter>
+   <filter-name>SetCharEncoding</filter-name>
+   <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+     <init-param>
+       <param-name>encoding</param-name>
+       <param-value>utf-8</param-value>
+     </init-param>
+    </filter>
+   <filter-mapping>
+     <filter-name>SetCharEncoding</filter-name>
+     <url-pattern>/*</url-pattern>
+   </filter-mapping>
+   
+   <!-- 페이징 처리용 초기값 파라미터 설정 -->
+   <context-param>
+	  <param-name>POSTS_PER_PAGE</param-name>
+	  <param-value>10</param-value> <!-- 화면에 출력되는 게시물 개수 -->
+  </context-param>
+  <context-param>
+	  <param-name>PAGES_PER_BLOCK</param-name>
+	  <param-value>5</param-value> <!-- 화면 아래쪽에 페이지 블럭 개수 단위 -->
+  </context-param>
+  
+  <!-- MVC를 활용하는 서블릿 요청 매핑 --> <!-- 매핑 : 요청을 처리할 때 --> <!-- C -->
+  <servlet>
+  	<servlet-name>HelloServlet</servlet-name>               <!-- http://192.168.111.101:8000/MustHaveJSP/HelloServlet 을 쳤을 때 밑에꺼가 반응한다. -->
+  	<servlet-class>servlet.HelloServlet</servlet-class>		<!-- java파일이 동작(servlet 패키지에 있는 HelloServlet.java) -->
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>HelloServlet</servlet-name>
+  	<url-pattern>/13Servlet/HelloServlet.ez</url-pattern>
+  	<!-- http://192.168.111.101:8000/MustHaveJSP/HelloServlet.ez를 치면 톰켓에서 servlet-name이 같은것을 찾아서 java 파일을 실행시킨다. -->
+  </servlet-mapping>
+
+  <servlet> <!-- 서블릿에서 사용할 객체 생성 -->
+  	<servlet-name>MemberAuth</servlet-name>
+  	<servlet-class>servlet.MemberAuth</servlet-class>
+  	<init-param> <!-- 호출 시 초기화 값 지정(application 영역에 initpram에 등재 -->
+  		<param-name>admin_id</param-name>
+  		<param-value>ez304</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping> 
+  	<servlet-name>MemberAuth</servlet-name>
+  	<url-pattern>/13Servlet/MemberAuth.ez</url-pattern> <!-- http://192.168.111.101:8000/MustHaveJSP/MemberAuth.ez에 반응 -->
+  </servlet-mapping>
+  
+  <!-- 14MVCBoard -->
+  <servlet>
+    <servlet-name>MVCBoardList</servlet-name>
+    <servlet-class>model2.mvcboard.ListController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MVCBoardList</servlet-name>
+  	<url-pattern>/mvcboard/list.kse</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>MVCBoardWrite</servlet-name>
+  	<servlet-class>model2.mvcboard.WriteController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>MVCBoardWrite</servlet-name>
+  	<url-pattern>/mvcboard/write.kse</url-pattern>
+  </servlet-mapping>  
+  
+  <context-param>
+  	<param-name>maxPostSize</param-name>
+  	<param-value>1024000</param-value> <!-- 바이트 단위 = 1메가 -->
+  </context-param>
+  
+  
+  
+</web-app>
